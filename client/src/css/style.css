@@ -129,3 +129,41 @@ header {
 .Polaris-Modal-Dialog--sizeLarge {
   max-width: 95vw !important;
 }
+/* autocomplete */
+.autoContainer {
+  z-index: 100 !important;
+  background-color: white;
+  position: absolute;
+  min-width: 100%;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+}
+.div-autocomplete {
+  position: relative;
+}
+.options {
+  font-size: 1.4rem;
+  height: 30px;
+  padding-left: 20px;
+  line-height: 30px;
+}
+.options:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+}
+.input-autocomplete:focus {
+  border: 2px solid #5c6ac4;
+  box-shadow: none;
+}
+.input-autocomplete {
+  font-size: 1.4rem;
+  min-height: 3.6rem;
+}
+#title-autocomplete {
+  margin-bottom: 10px;
+  display: inline-block;
+}
+/* end autocomplete */
+.imageProduct-reviewPage {
+  margin-right: 15px;
+  border-radius: 15%;
+  width: 50px;
+}

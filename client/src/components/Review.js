@@ -3,10 +3,10 @@ import axios from "axios";
 import Title from "./service/Title";
 import ModalCreateReview from "./service/ModalCreateReview";
 import ModalImport from "./service/ModalImport";
+import ReactStars from "react-stars";
 import ModalExport from "./service/ModalExport";
 import "../css/style.css";
 import { Table } from "reactstrap";
-
 import {
   Scrollable,
   Tabs,
@@ -14,6 +14,7 @@ import {
   Layout,
   TextField,
   Select,
+  Pagination,
 } from "@shopify/polaris";
 import { Dropdown } from "react-bootstrap";
 
@@ -32,7 +33,7 @@ function Review() {
         "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
         {
           params: {
-            getAll: "",
+            getAllProduct: "",
           },
         }
       );
@@ -50,16 +51,18 @@ function Review() {
   //   { value: "vintage", label: "Vintage" },
   //   { value: "refurbished", label: "Refurbished" },
   // ];
-  // var data1;
-  // if (selected === 0) {
-  //   data1 = data;
-  // }
-  // if (selected === 1) {
-  //   data1 = data.filter((e) => e.value === "rustic");
-  // }
-  // if (selected === 2) {
-  //   data1 = data.filter((e) => e.value === "antique");
-  // }
+  let datFilterProducts = [];
+  if (selected === 0) {
+    datFilterProducts = listAllProduct;
+  }
+  if (selected === 1) {
+    datFilterProducts = listAllProduct.filter(
+      (e) => e.products_title === "Giày"
+    );
+  }
+  if (selected === 2) {
+    console.log(2);
+  }
 
   const tabs = [
     {
@@ -164,28 +167,43 @@ function Review() {
         </Layout.Section>
       </Layout>
       {/* ...................................................................... */}
-      <Scrollable shadow style={{ height: "50vh" }}>
-        <div style={{ height: "400px", overflow: "auto" }}>
+      <Scrollable shadow style={{ height: "50vh", marginBottom: "20px" }}>
+        <div>
           <Table id="table" hover>
             <thead>
               <tr>
-                <th>Product</th>
-                <th>Rating</th>
-                <th>Action</th>
+                <th width="50%">Product</th>
+                <th width="40%">Rating</th>
+                <th width="10%">Action</th>
               </tr>
             </thead>
             <tbody>
-              {listAllProduct.map((data, index) => (
+              {datFilterProducts.map((data, index) => (
                 <tr key={index}>
                   <td>
                     <img
-                      src={data["products_image_url"]}
+                      src="https://cf.shopee.vn/file/f6c491fb8ef80a610d9ea8168eac50de"
                       alt="product"
-                      style={{ width: "50px", marginRight: "15px" }}
+                      className="imageProduct-reviewPage"
                     />
-                    <Link>{data["title"]}</Link>
+                    <Link>{data["products_title"]}</Link>
                   </td>
-                  <td>reviews</td>
+                  <td>
+                    <ReactStars
+                      style={{ display: "inline-block" }}
+                      count={5}
+                      size={24}
+                      emptyIcon={<i className="far fa-star"></i>}
+                      fullIcon={<i className="fa fa-star"></i>}
+                      color2="#ffb50d"
+                      value={3.5}
+                      edit={false}
+                    />
+                    {/* {data.ratingReviews} reviews */}
+                    <p style={{ display: "block", marginTop: "10px" }}>
+                      1212321312 reviews
+                    </p>
+                  </td>
                   <td>
                     <Dropdown>
                       <Dropdown.Toggle
@@ -209,6 +227,19 @@ function Review() {
           </Table>
         </div>
       </Scrollable>
+      <div style={{ float: "right" }}>
+        <Pagination
+          label="Page 1/50"
+          hasPrevious
+          onPrevious={() => {
+            console.log("Previous");
+          }}
+          hasNext
+          onNext={() => {
+            console.log("Next");
+          }}
+        />
+      </div>
     </div>
   );
 }

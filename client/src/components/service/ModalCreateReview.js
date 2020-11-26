@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useRef } from "react";
 import {
   Button,
   Modal,
@@ -14,6 +14,8 @@ import {
   Thumbnail,
   RadioButton,
   Layout,
+  Card,
+  Scrollable,
 } from "@shopify/polaris";
 import axios from "axios";
 
@@ -22,98 +24,53 @@ import "../../css/style.css";
 import moment from "moment";
 
 function ModalCreateReview() {
+  const [display, setDisplay] = useState(false);
+  const [options, setOptions] = useState([]);
+  const [search, setSearch] = useState("");
+  const wrapperRef = useRef(null);
+  useEffect(() => {
+    const products = [];
+    axios
+      .get(
+        `https://huylocal.omegatheme.com/product_reviews-app/backend/server.php`,
+        {
+          params: {
+            getProduct: "",
+          },
+        }
+      )
+      .then((res) => {
+        return res.data.map((e) => products.push(e));
+      });
+    setOptions(products);
+  }, []);
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+  const handleClickOutside = (event) => {
+    const { current: wrap } = wrapperRef;
+    if (wrap && !wrap.contains(event.target)) {
+      setDisplay(false);
+    }
+  };
+  const setPokeDex = (poke) => {
+    setSearch(poke);
+    setDisplay(false);
+  };
   //custom modal
   const [active, setActive] = useState(false);
   const handleChange = useCallback(() => setActive(!active), [active]);
 
-  const handleClose = useCallback(() => setActive((active) => !active), []);
   const activator = (
     <Button id="btn-outline" onClick={handleChange} icon={PlusMinor}>
       Add Review
     </Button>
   );
   //end
-  //custom autocomplete
-  const deselectedOptions = [
-    { value: "rustic", label: "Rustic" },
-    { value: "antique", label: "Antique" },
-    { value: "vinyl", label: "Vinyl" },
-    { value: "vintage", label: "Vintage" },
-    { value: "refurbished", label: "Refurbished" },
-  ];
-  // get product
-  const [dataProducts, setData] = useState([]);
-  useEffect(() => {
-    const getData = async () => {
-      const res = await axios.get(
-        "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
-        {
-          params: {
-            getAll: "",
-          },
-        }
-      );
-      setData(res.data);
-    };
 
-    getData();
-  }, []);
-
-  const listAllProduct = dataProducts ? dataProducts : [];
-  const optionsProduct = [];
-  listAllProduct.map((product, index) => {
-    optionsProduct.push({
-      value: product.id,
-      label: product.products_title,
-    });
-  });
-
-  const [selectedOptions, setSelectedOptions] = useState([]);
-  const [inputValueProduct, setInputValueProduct] = useState("");
-  const [options, setOptions] = useState(optionsProduct);
-  console.log(options);
-  const click = useCallback((newValue) => {}, []);
-  const updateText = useCallback(
-    (value) => {
-      setInputValueProduct(value);
-
-      if (value === "") {
-        setOptions(optionsProduct);
-        return;
-      }
-
-      const filterRegex = new RegExp(value, "i");
-      const resultOptions = optionsProduct.filter((option) =>
-        option.label.match(filterRegex)
-      );
-      setOptions(resultOptions);
-    },
-    [optionsProduct]
-  );
-  const updateSelection = useCallback((selected) => {
-    const selectedValue = selected.map((selectedItem) => {
-      const matchedOption = options.find((option) => {
-        return option.value.match(selectedItem);
-      });
-      return matchedOption && matchedOption.label;
-    });
-
-    setSelectedOptions(selected);
-    setInputValueProduct(selectedValue); //fix tay - default: selectedValue
-    console.log(inputValueProduct);
-  }, []);
-
-  const textField = (
-    <Autocomplete.TextField
-      onChange={updateText}
-      label="Choose product"
-      value={inputValueProduct}
-      prefix={<Icon source={SearchMinor} color="inkLighter" />}
-      placeholder="Search"
-      onFocus={click}
-    />
-  );
-  //end autocomplete
   //input name
   const [name, setName] = useState(""); //console.log(value)
   const handleChangeInputName = useCallback(
@@ -139,9 +96,12 @@ function ModalCreateReview() {
     []
   );
   //select rating input
-  const [selectedRating, setSelected] = useState("5");
+  const [selectedRating, setSelectedRating] = useState("5");
 
-  const handleSelectChange = useCallback((value) => setSelected(value), []);
+  const handleSelectChange = useCallback(
+    (value) => setSelectedRating(value),
+    []
+  );
 
   const rating = [
     { label: "1 stars", value: "1" },
@@ -231,7 +191,7 @@ function ModalCreateReview() {
   );
   //end
   const data = [
-    { "Choose product": inputValueProduct },
+    { "Choose product": search },
     { Name: name },
     { Title: title },
     { Email: email },
@@ -244,14 +204,35 @@ function ModalCreateReview() {
     { Publish: valueRadioPublish },
     { Featured: valueRadioFeatured },
   ];
+
   //form test
+  const clearInput = useCallback(() => {
+    setSearch("");
+    setName("");
+    setTitle("");
+    setEmail("");
+    setMessenge("");
+    setSelectedRating("5");
+    setFiles([]);
+    setDate(today);
+    setValueRadioPublish("");
+    setValueRadioPurchased("");
+    setValueRadioFeatured("");
+    setvalueRadioRecommend("");
+  });
   const handleSubmit = (e) => {
     e.preventDefault();
     const onSubmit = async () => {
-      console.log(options);
+      console.log(data);
     };
     onSubmit();
     handleChange();
+    clearInput();
+  };
+  const handleClose = (e) => {
+    e.preventDefault();
+    clearInput();
+    setActive((active) => !active);
   };
   return (
     <div style={{ float: "left" }}>
@@ -278,12 +259,47 @@ function ModalCreateReview() {
             <div className="marginBottom">
               <Layout>
                 <Layout.Section oneHalf>
-                  <Autocomplete
-                    options={options}
-                    selected={selectedOptions}
-                    onSelect={updateSelection}
-                    textField={textField}
-                  />
+                  <div ref={wrapperRef} className="div-autocomplete">
+                    <p id="title-autocomplete">Choose product</p>
+                    <input
+                      className="form-control mr-sm-2 input-autocomplete"
+                      type="search"
+                      aria-label="Search"
+                      onClick={() => setDisplay(true)}
+                      id="auto"
+                      placeholder="Type to search"
+                      value={search}
+                      onChange={(event) => setSearch(event.target.value)}
+                    ></input>
+                    {display && (
+                      <div className="autoContainer">
+                        <Scrollable
+                          shadow
+                          style={{ maxHeight: "50vh", overflow: "auto" }}
+                        >
+                          {options
+                            .filter(
+                              ({ products_title }) =>
+                                products_title
+                                  .toLowerCase()
+                                  .indexOf(search.toLowerCase()) > -1
+                            )
+                            .map((v, i) => {
+                              return (
+                                <div
+                                  onClick={() => setPokeDex(v.products_title)}
+                                  className="options"
+                                  key={i}
+                                  tabIndex="0"
+                                >
+                                  <span>{v.products_title}</span>
+                                </div>
+                              );
+                            })}
+                        </Scrollable>
+                      </div>
+                    )}
+                  </div>
                 </Layout.Section>
                 <Layout.Section oneHalf>
                   <TextField

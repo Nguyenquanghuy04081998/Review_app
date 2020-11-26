@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import Review from "./components/Review";
 import Settings from "./components/Settings";
 import Instructions from "./components/Instructions";
-import { AppProvider } from "@shopify/polaris";
+import { AppProvider, Icon } from "@shopify/polaris";
 import "./css/style.css";
 import "@shopify/polaris/dist/styles.css";
 import {
@@ -11,6 +11,11 @@ import {
   Link,
   // NavLink,
 } from "react-router-dom";
+import {
+  SettingsMinor,
+  TextAlignmentCenterMajor,
+  QuestionMarkMinor,
+} from "@shopify/polaris-icons";
 class App extends Component {
   render() {
     return (
@@ -31,18 +36,21 @@ class App extends Component {
             </h1>
             <div id="group-button">
               <Link className="btn btn-light  .btn-lg top-button" to="/">
+                <Icon source={TextAlignmentCenterMajor} />
                 List reviews
               </Link>
               <Link
                 className="btn btn-light  .btn-lg top-button"
                 to="/settings"
               >
+                <Icon source={SettingsMinor} />
                 Settings
               </Link>
               <Link
                 className="btn btn-light  .btn-lg top-button"
                 to="/instructions"
               >
+                <Icon source={QuestionMarkMinor} />
                 Instructions
               </Link>
             </div>
