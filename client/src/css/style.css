@@ -1,0 +1,131 @@
+/* css header */
+header {
+  height: 100px;
+  background-color: white;
+  position: relative;
+}
+#title {
+  border-left: 3px solid #448aff;
+  color: #4a4a4a;
+  font-size: 20px;
+  width: 50%;
+  line-height: 30px;
+  margin: 21px 0px 0px 21px;
+  padding-left: 13px;
+  font-weight: 600;
+  display: inline-block;
+}
+#title-link {
+  color: #448aff;
+}
+#group-button {
+  float: right;
+  margin-right: 90px;
+}
+
+.top-button {
+  padding: 12px 19px !important;
+  font-size: 16px !important;
+  margin: 10px 10px 0 0;
+}
+
+#arrow {
+  width: 0;
+  height: 0;
+  border-left: 20px solid transparent;
+  border-right: 20px solid transparent;
+  margin-left: 80px;
+  border-top: 20px solid white;
+}
+
+/* end css header */
+/* button action in reviews page*/
+.buttondropdown {
+  background: linear-gradient(to bottom, white, #f9fafb) !important;
+  border: 0.1rem solid var(--p-border, #c4cdd5) !important;
+  box-shadow: 0 1px 0 0 rgba(22, 29, 37, 0.05) !important;
+  height: 35px;
+  width: 90px;
+}
+
+.btn {
+  font-size: 1.4rem !important;
+}
+
+.dropdown-menu {
+  font-size: 1.4rem !important;
+}
+
+.dropdown-menu a {
+  padding-bottom: 7px;
+}
+/* end button action */
+
+/* start reviews page*/
+.Polaris-Heading {
+  margin: 0 0 10px 13px !important;
+  font-size: 20px !important;
+}
+#reviews-box {
+  background-color: white;
+  height: 100vh;
+  border: 1px solid #ecebeb;
+  border-radius: 25px;
+  padding: 20px 50px 20px 50px;
+}
+
+#btn-outline {
+  border: none !important;
+  border-radius: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+#card-group {
+  margin-top: 50px;
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 30px;
+}
+.Polaris-Card + .Polaris-Card {
+  margin-top: 0rem !important;
+}
+
+.card-custom {
+  width: 300px;
+  height: 114px;
+  text-align: center;
+  border: 1px solid #ebebec;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.card-title {
+  color: #2776b9 !important;
+  margin-bottom: 2rem;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.Polaris-Modal-Section {
+  display: inline-block;
+  width: 100%;
+}
+.padding {
+  padding: 30px;
+}
+.marginBottom {
+  margin-bottom: 20px;
+}
+.Polaris-DropZone-FileUpload__Button::before {
+  content: "Add image";
+}
+.table th {
+  border-top: none;
+}
+.Polaris-Tabs__Wrapper {
+  border-bottom: none !important;
+  margin-bottom: 15px;
+}
+.Polaris-Modal-Dialog--sizeLarge {
+  max-width: 95vw !important;
+}
