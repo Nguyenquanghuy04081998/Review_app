@@ -18,27 +18,26 @@ import {
   Scrollable,
 } from "@shopify/polaris";
 import axios from "axios";
-
+import config from "../../config/config";
 import { SearchMinor, PlusMinor } from "@shopify/polaris-icons";
 import "../../css/style.css";
 import moment from "moment";
 
 function ModalCreateReview() {
+  const [disableSave, setDisable] = useState(true);
   const [display, setDisplay] = useState(false);
   const [options, setOptions] = useState([]);
   const [search, setSearch] = useState("");
+  const [idProduct, setIdProduct] = useState("");
   const wrapperRef = useRef(null);
   useEffect(() => {
     const products = [];
     axios
-      .get(
-        `https://huylocal.omegatheme.com/product_reviews-app/backend/server.php`,
-        {
-          params: {
-            getProduct: "",
-          },
-        }
-      )
+      .get(config.rootLink + `/product_reviews-app/backend/server.php`, {
+        params: {
+          getAllProduct: "",
+        },
+      })
       .then((res) => {
         return res.data.map((e) => products.push(e));
       });
@@ -56,7 +55,8 @@ function ModalCreateReview() {
       setDisplay(false);
     }
   };
-  const setPokeDex = (poke) => {
+  const setPokeDex = (poke, id) => {
+    setIdProduct(id);
     setSearch(poke);
     setDisplay(false);
   };
@@ -73,10 +73,12 @@ function ModalCreateReview() {
 
   //input name
   const [name, setName] = useState(""); //console.log(value)
-  const handleChangeInputName = useCallback(
-    (newValue) => setName(newValue),
-    []
-  );
+  const handleChangeInputName = useCallback((newValue) => {
+    setName(newValue);
+    // if (newValue !== "" && search !== "") {
+    //   setDisable(false);
+    // }
+  }, []);
   //title input
   const [title, setTitle] = useState(""); //console.log(value)
   const handleChangeInputTitle = useCallback(
@@ -162,48 +164,37 @@ function ModalCreateReview() {
   const handleChangeDate = useCallback((newValue) => setDate(newValue), []);
 
   //radio button recommend this product
-  const [valueRadioRecommend, setvalueRadioRecommend] = useState("disabled");
-
+  const [valueRadioRecommend, setvalueRadioRecommend] = useState(
+    "yesRecommend"
+  );
   const handleChangeRadioRecommend = useCallback(
     (_checked, newValue) => setvalueRadioRecommend(newValue),
     []
   );
   //radio button Purchased customers
-  const [valueRadioPurchased, setValueRadioPurchased] = useState("disabled");
+  const [valueRadioPurchased, setValueRadioPurchased] = useState(
+    "yesPurchased"
+  );
 
   const handleChangeRadioPurchased = useCallback(
     (_checked, newValue) => setValueRadioPurchased(newValue),
     []
   );
   //radio button Featured review
-  const [valueRadioFeatured, setValueRadioFeatured] = useState("disabled");
+  const [valueRadioFeatured, setValueRadioFeatured] = useState("yesFeatured");
 
   const handleChangeRadioFeatured = useCallback(
     (_checked, newValue) => setValueRadioFeatured(newValue),
     []
   );
   //radio button Publish this review
-  const [valueRadioPublish, setValueRadioPublish] = useState("disabled");
+  const [valueRadioPublish, setValueRadioPublish] = useState("yesPublish");
 
   const handleChangeRadioPublish = useCallback(
     (_checked, newValue) => setValueRadioPublish(newValue),
     []
   );
   //end
-  const data = [
-    { "Choose product": search },
-    { Name: name },
-    { Title: title },
-    { Email: email },
-    { Messenge: messenge },
-    { Rating: selectedRating },
-    { Image: files },
-    { "Publish date": date },
-    { Recomment: valueRadioRecommend },
-    { Purchased: valueRadioPurchased },
-    { Publish: valueRadioPublish },
-    { Featured: valueRadioFeatured },
-  ];
 
   //form test
   const clearInput = useCallback(() => {
@@ -215,23 +206,47 @@ function ModalCreateReview() {
     setSelectedRating("5");
     setFiles([]);
     setDate(today);
-    setValueRadioPublish("");
-    setValueRadioPurchased("");
-    setValueRadioFeatured("");
-    setvalueRadioRecommend("");
+    setValueRadioPublish("yesPublish");
+    setValueRadioPurchased("yesPurchased");
+    setValueRadioFeatured("yesFeatured");
+    setvalueRadioRecommend("yesRecommend");
   });
+  const [dataSubmit, setDataSubmit] = useState("");
   const handleSubmit = (e) => {
     e.preventDefault();
     const onSubmit = async () => {
-      console.log(data);
+      const res = await axios.post(
+        config.rootLink + "/product_reviews-app/backend/server.php",
+        {
+          params: {
+            submitCreateReview: "",
+            selectedProduct: search,
+            idProduct: idProduct,
+            valueName: name,
+            valueTitle: title,
+            valueEmail: email,
+            valueMessage: messenge,
+            selectedRating: selectedRating,
+            valueRadioRecommend: valueRadioRecommend,
+            valueRadioPurchased: valueRadioPurchased,
+            valueRadioPublish: valueRadioPublish,
+            valueRadioFeatured: valueRadioFeatured,
+            valueDate: date,
+          },
+        }
+      );
+      setDataSubmit(res.data);
     };
     onSubmit();
+    setDisable(true);
     handleChange();
     clearInput();
   };
+
   const handleClose = (e) => {
     e.preventDefault();
     clearInput();
+    setDisable(true);
     setActive((active) => !active);
   };
   return (
@@ -246,6 +261,7 @@ function ModalCreateReview() {
         primaryAction={{
           content: "Save",
           onAction: handleSubmit,
+          disabled: false,
         }}
         secondaryActions={[
           {
@@ -287,7 +303,9 @@ function ModalCreateReview() {
                             .map((v, i) => {
                               return (
                                 <div
-                                  onClick={() => setPokeDex(v.products_title)}
+                                  onClick={() =>
+                                    setPokeDex(v.products_title, v.products_id)
+                                  }
                                   className="options"
                                   key={i}
                                   tabIndex="0"

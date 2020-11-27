@@ -1,4 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
+import config from "../config/config";
+
 import axios from "axios";
 import Title from "./service/Title";
 import ModalCreateReview from "./service/ModalCreateReview";
@@ -30,7 +32,7 @@ function Review() {
   useEffect(() => {
     const getData = async () => {
       const res = await axios.get(
-        "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
+        config.rootLink + "/product_reviews-app/backend/server.php",
         {
           params: {
             getAllProduct: "",
@@ -56,12 +58,10 @@ function Review() {
     datFilterProducts = listAllProduct;
   }
   if (selected === 1) {
-    datFilterProducts = listAllProduct.filter(
-      (e) => e.products_title === "Giày"
-    );
+    datFilterProducts = listAllProduct.filter((e) => e.countReviews > 0);
   }
   if (selected === 2) {
-    console.log(2);
+    datFilterProducts = listAllProduct.filter((e) => e.countReviews == 0);
   }
 
   const tabs = [
@@ -83,27 +83,52 @@ function Review() {
     },
   ];
   //filter by rating
-  const [selectedRating, setSelectedRating] = useState("today");
+  const [selectedRating, setSelectedRating] = useState(0);
 
-  const handleSelectFilterRating = useCallback(
-    (value) => setSelectedRating(value),
-    []
-  );
+  const handleSelectFilterRating = useCallback((value) => {
+    setSelectedRating(value);
+    if (value == 0) {
+      datFilterProducts = listAllProduct;
+      console.log(selectedRating);
+    }
+    if (value == 1) {
+      datFilterProducts = [];
+    }
+    // if (value == 2) {
+    //   datFilterProducts = listAllProduct.filter((e) => {
+    //     2 <= e.ratingReviews / e.countReviews < 3;
+    //   });
+    // }
+    // if (value == 3) {
+    //   datFilterProducts = listAllProduct.filter((e) => {
+    //     3 <= e.ratingReviews / e.countReviews < 4;
+    //   });
+    // }
+    // if (value == 4) {
+    //   datFilterProducts = listAllProduct.filter((e) => {
+    //     4 <= e.ratingReviews / e.countReviews < 5;
+    //   });
+    // }
+    // if (value == 5) {
+    //   datFilterProducts = listAllProduct.filter((e) => {
+    //     e.ratingReviews / e.countReviews == 5;
+    //   });
+    // }
+  }, []);
 
   const rating = [
-    { label: "All stars", value: "0" },
-    { label: "1 stars", value: "1" },
-    { label: "2 stars", value: "2" },
-    { label: "3 stars", value: "3" },
-    { label: "4 stars", value: "4" },
-    { label: "5 stars", value: "5" },
+    { label: "All stars", value: 0 },
+    { label: "1 stars", value: 1 },
+    { label: "2 stars", value: 2 },
+    { label: "3 stars", value: 3 },
+    { label: "4 stars", value: 4 },
+    { label: "5 stars", value: 5 },
   ];
   //search input
   const [valueSearch, setSearch] = useState(""); //console.log(value)
-  const handleChangeInputSearch = useCallback(
-    (newValue) => setSearch(newValue),
-    []
-  );
+  const handleChangeInputSearch = useCallback((newValue) => {
+    setSearch(newValue);
+  }, []);
   const [countReviews, setCountReview] = useState([]);
   useEffect(() => {
     const getData = async () => {
@@ -121,6 +146,60 @@ function Review() {
 
     getData();
   }, []);
+
+  const [countProducts, setCountProducts] = useState([]);
+  useEffect(() => {
+    const getData = async () => {
+      const res = await axios.get(
+        "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
+        {
+          params: {
+            getCountProduct: "",
+          },
+        }
+      );
+
+      setCountProducts(res.data);
+    };
+    getData();
+  }, []);
+
+  const [publishReview, setCountPublishReview] = useState([]);
+  useEffect(() => {
+    const getData = async () => {
+      const res = await axios.get(
+        "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
+        {
+          params: {
+            getPublishReviews: "",
+          },
+        }
+      );
+
+      setCountPublishReview(res.data);
+    };
+
+    getData();
+  }, []);
+
+  const [unPublishReview, setCountUnPublishReview] = useState([]);
+  useEffect(() => {
+    const getData = async () => {
+      const res = await axios.get(
+        "https://huylocal.omegatheme.com/product_reviews-app/backend/server.php",
+        {
+          params: {
+            getUnPublishReviews: "",
+          },
+        }
+      );
+
+      setCountUnPublishReview(res.data);
+    };
+
+    getData();
+  }, []);
+  console.log(selectedRating);
   return (
     <div>
       <Title title="Reviews" />
@@ -135,15 +214,15 @@ function Review() {
           <p>All reviews</p>
         </div>
         <div className="card-custom">
-          <h1 className="card-title">1357</h1>
+          <h1 className="card-title">{publishReview}</h1>
           <p>Published reviews</p>
         </div>
         <div className="card-custom">
-          <h1 className="card-title">51</h1>
+          <h1 className="card-title">{unPublishReview}</h1>
           <p>UnPublished reviews</p>
         </div>
         <div className="card-custom">
-          <h1 className="card-title">0</h1>
+          <h1 className="card-title">{countProducts - countReviews}</h1>
           <p>No reviews</p>
         </div>
       </div>
@@ -178,51 +257,58 @@ function Review() {
               </tr>
             </thead>
             <tbody>
-              {datFilterProducts.map((data, index) => (
-                <tr key={index}>
-                  <td>
-                    <img
-                      src="https://cf.shopee.vn/file/f6c491fb8ef80a610d9ea8168eac50de"
-                      alt="product"
-                      className="imageProduct-reviewPage"
-                    />
-                    <Link>{data["products_title"]}</Link>
-                  </td>
-                  <td>
-                    <ReactStars
-                      style={{ display: "inline-block" }}
-                      count={5}
-                      size={24}
-                      emptyIcon={<i className="far fa-star"></i>}
-                      fullIcon={<i className="fa fa-star"></i>}
-                      color2="#ffb50d"
-                      value={3.5}
-                      edit={false}
-                    />
-                    {/* {data.ratingReviews} reviews */}
-                    <p style={{ display: "block", marginTop: "10px" }}>
-                      1212321312 reviews
-                    </p>
-                  </td>
-                  <td>
-                    <Dropdown>
-                      <Dropdown.Toggle
-                        variant="default"
-                        className="buttondropdown"
-                      >
-                        Action
-                      </Dropdown.Toggle>
+              {datFilterProducts
+                .filter(
+                  (e) =>
+                    e.products_title
+                      .toLowerCase()
+                      .indexOf(valueSearch.toLowerCase()) > -1
+                )
+                .map((data, index) => (
+                  <tr key={index}>
+                    <td>
+                      <img
+                        src={data.products_image_url}
+                        alt="product"
+                        className="imageProduct-reviewPage"
+                      />
+                      <Link>{data["products_title"]}</Link>
+                    </td>
+                    <td>
+                      <ReactStars
+                        style={{ display: "inline-block" }}
+                        count={5}
+                        size={24}
+                        emptyIcon={<i className="far fa-star"></i>}
+                        fullIcon={<i className="fa fa-star"></i>}
+                        color2="#ffb50d"
+                        value={data["ratingReviews"] / data["countReviews"]}
+                        edit={false}
+                      />
+                      {/* {data.ratingReviews} reviews */}
+                      <p style={{ display: "block", marginTop: "10px" }}>
+                        {data["countReviews"]} reviews
+                      </p>
+                    </td>
+                    <td>
+                      <Dropdown>
+                        <Dropdown.Toggle
+                          variant="default"
+                          className="buttondropdown"
+                        >
+                          Action
+                        </Dropdown.Toggle>
 
-                      <Dropdown.Menu>
-                        <Dropdown.Item>Publish</Dropdown.Item>
-                        <Dropdown.Item>Unpublish</Dropdown.Item>
-                        <Dropdown.Item>Delete</Dropdown.Item>
-                        <Dropdown.Item>Import Reviews</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                  </td>
-                </tr>
-              ))}
+                        <Dropdown.Menu>
+                          <Dropdown.Item>Publish</Dropdown.Item>
+                          <Dropdown.Item>Unpublish</Dropdown.Item>
+                          <Dropdown.Item>Delete</Dropdown.Item>
+                          <Dropdown.Item>Import Reviews</Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </Table>
         </div>

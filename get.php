@@ -11,5 +11,3 @@ $shopify= shopifyInit('shopify_huy', 'nguyen-q-huy.myshopify.com','');
     foreach($product as $product){
         echo $product;
     }
-
-?>

@@ -86,6 +86,7 @@ function db_duplicate($table, $data, $content_duplicate)
     $values = rtrim($values, ',');
     $values .= ")";
     $query = "INSERT INTO $table  $fields  VALUES $values ON DUPLICATE KEY UPDATE $content_duplicate ;";
+    //    print_r($query); die();
     db_query($query);
     return  mysqli_insert_id($db);
 }
@@ -512,4 +513,43 @@ function getTime($shopify)
         'month'     => $month,
         'lastmonth' => $lastmonth,
     ];
+}
+
+function FixSpecialChars($text)
+{
+    $map = array(
+        array("\ufffd", ""),
+        array("�", ""),
+        array(" ", "_"),
+        array("&", "_"),
+        array("!", "_"),
+        array("%", "_"),
+        array("#", "_"),
+        array("@", "_"),
+        array("%", "_"),
+        array("^", "_"),
+        array("*", "_"),
+        array("(", "_"),
+        array(")", "_"),
+        array("+", "_"),
+        array("=", "_"),
+        array("~", "_"),
+        array("?", "_"),
+        array("<", "_"),
+        array(">", "_"),
+        array("�", "")
+    );
+
+    if (is_array($map)) {
+        foreach ($map as $pair)
+            $text = str_replace($pair[0], $pair[1], $text);
+    }
+    $text = stripUnicode($text);
+    return $text;
+}
+function testOutputData($data)
+{
+    $data = str_replace('&amp;quot;', '"', $data);
+    $data = str_replace('&quot;', '"', $data);
+    return $data;
 }
